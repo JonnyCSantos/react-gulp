@@ -26,7 +26,9 @@ class Titulo extends React.Component {
   }
 
   render(){
-    return <h1>React -  {this.state.hora.toLocaleTimeString()}</h1>;
+    return <h1>React</h1>;
+    // Cronometro
+    // return <h1>React -  {this.state.hora.toLocaleTimeString()}</h1>;
   }
 }
 

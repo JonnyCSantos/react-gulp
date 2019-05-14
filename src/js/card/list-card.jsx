@@ -1,13 +1,22 @@
 import React from 'react';
+import axios from 'axios';
+
 import Card from './card';
+import Busca from '../busca/busca';
+
 
 class ListCard extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            count: 0
+            count: 0,
+            busca: '',
+            dados: '',
+            servidor: ''
         }
         this.addCliques = this.addCliques.bind(this);
+        this.atualizaBusca = this.atualizaBusca.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     addCliques(){
@@ -20,22 +29,46 @@ class ListCard extends React.Component {
         }));
     }
 
+    atualizaBusca(evento){
+        this.setState({
+            busca: evento.target.value
+        })
+        if(evento.target.value === '' ) {
+            this.setState({dados: this.state.servidor});
+        }
+    }
+
+    onSubmit(evento){
+        console.log(this.state.busca);
+        let busca = this.state.busca;
+        let dados = this.state.servidor;
+        let novaLista = dados.filter(function(item){
+            if(item.title.toUpperCase().indexOf(busca.toUpperCase()) > -1
+            || item.description.toUpperCase().indexOf(busca.toUpperCase()) > -1
+            || item.detail.toUpperCase().indexOf(busca.toUpperCase()) > -1){
+              return item;
+            }
+        });
+        this.setState({dados: novaLista});
+      
+
+        evento.preventDefault();
+    }
+    
+    componentDidMount(){
+        let self = this;
+        axios.get('http://localhost:8000/servidor.php?dados=1').then(function(response){
+            self.setState({
+                dados: response.data,
+                servidor: response.data
+            });
+        });
+
+    }
+
     render(){
         let {count} = this.state
-        let news = [
-            {title: 'Title 1', description: 'Lorem Ipsum 1... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-1'},
-            {title: 'Title 2', description: 'Lorem Ipsum 2... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-2'},
-            {title: 'Title 3', description: 'Lorem Ipsum 3... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-3'},
-            {title: 'Title 4', description: 'Lorem Ipsum 1... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-1'},
-            {title: 'Title 5', description: 'Lorem Ipsum 2... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-2'},
-            {title: 'Title 6', description: 'Lorem Ipsum 3... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-3'},
-            {title: 'Title 7', description: 'Lorem Ipsum 1... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-1'},
-            {title: 'Title 8', description: 'Lorem Ipsum 2... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-2'},
-            {title: 'Title 9', description: 'Lorem Ipsum 3... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-3'},
-            {title: 'Title 10', description: 'Lorem Ipsum 1... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-1'},
-            {title: 'Title 11', description: 'Lorem Ipsum 2... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-2'},
-            {title: 'Title 12', description: 'Lorem Ipsum 3... ', image: 'https://materializecss.com/images/office.jpg', link: '#img-3'}
-        ];
+        let news = this.state.dados
 
         let aux = [];
         let newList = [];
@@ -75,6 +108,9 @@ class ListCard extends React.Component {
 
         return (
             <div>
+                <div className="row">
+                    <Busca atualizaBusca={this.atualizaBusca} onSubmit={this.onSubmit} busca={this.state.busca}/>
+                </div>
                 <p>Quantidade de cliques: {count}</p>
                 {row}
             </div>
